@@ -55,18 +55,23 @@ app.get('/', function(req, res){
     res.send('hello world');
 });
 
-app.use('/wechat', wechat('aaaaa').text(function (message, req, res, next) {
-  parameters = message.Content.split(" ");
-  if (parameters[0] == "help") {
+function display_helper(res){
     var messages = "";
-    messages = messages + "[+] <name>: join room\r\n";
-    messages = messages + "[-]: leave room\r\n";
-    messages = messages + "[h]: host a room\r\n";
-    messages = messages + "[e]: end a room\r\n";
-    messages = messages + "[r] <name>: register account\r\n";
-    messages = messages + "[p] <number>: make a poker";
+    messages = messages + "[+] <name>: join room\n";
+    messages = messages + "[-]: leave room\n";
+    messages = messages + "[h]: host a room\n";
+    messages = messages + "[e]: end a room\n";
+    messages = messages + "[r] <name>: register account\n";
+    messages = messages + "[p] <number>: make a poker\n";
     messages = messages + "[.] : list result";
     res.reply(messages);
+};
+
+app.use('/wechat', wechat('aaaaa').text(function (message, req, res, next) {
+  var lower_parameters = message.Content.toLowerCase();
+  var parameters = lower_parameters.split(" ");
+  if (parameters[0] == "help") { 
+    display_helper(res); 
   } else if (parameters[0] == "-") {
     User.findOneQ({openId: message.FromUserName})
     .then(function (current_user){
@@ -206,6 +211,8 @@ app.use('/wechat', wechat('aaaaa').text(function (message, req, res, next) {
             }
         })
     }
+  } else {
+    display_helper(res);
   }
 }).image(function (message, req, res, next) {
   // TODO
