@@ -10,8 +10,8 @@ var app = express();
 var wechat = require('wechat');
 var mongoose = require('mongoose-q')(require('mongoose'));
 
-// mongoose.connect('mongodb://localhost/wechat');
-mongoose.connect('mongodb://admin:admin@ds029831.mongolab.com:29831/wechat');
+var mongo_url = process.env.DB || 'mongodb://localhost/wechat'
+mongoose.connect(mongo_url);
 
 var Schema = mongoose.Schema;
 var userSchema = new Schema({
@@ -116,11 +116,11 @@ app.use('/wechat', wechat('aaaaa').text(function (message, req, res, next) {
                                 Session.findOneQ({participant_id: current_user._id})
                                 .then(function (session){
                                     if (session) {
-                                        if (session.room_id.equals(room_id)) { 
+                                        if (session.room_id.equals(room._id)) { 
                                             res.reply("Already joined"); 
                                         } else { res.reply("Joined to other rooms, please leave..."); }
                                     } else {
-                                        Session.create({room_id: room_id, participant_id: current_user._id, alias: current_user.name});
+                                        Session.create({room_id: room._id, participant_id: current_user._id, alias: current_user.name});
                                         res.reply("Joined to room " + host.name);
                                     }
                                 })
